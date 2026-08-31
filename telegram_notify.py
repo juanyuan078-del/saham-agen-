@@ -48,9 +48,30 @@ def format_trading_message(hasil: list[dict]) -> str:
     lines = ["📈 *[TRADING]* Hasil Screening\n"]
     for r in hasil:
         gc = "✅" if r.get("golden_cross") else "-"
+        fib_info = f"\n📐 Fib: dekat level {r['fib_nearest']} (support {r.get('fib_support', '-')})" if r.get("fib_nearest") else ""
         lines.append(
             f"*{r['kode_saham']}*\n"
             f"RSI: {r.get('rsi', '-')} | MA50: {r.get('ma50', '-')} | "
-            f"MA200: {r.get('ma200', '-')} | Golden Cross: {gc}\n"
+            f"MA200: {r.get('ma200', '-')} | Golden Cross: {gc}"
+            f"{fib_info}\n"
+            f"💰 Beli: {r.get('entry_price', '-')}\n"
+            f"🛑 Stop Loss: {r.get('stop_loss', '-')}\n"
+            f"🎯 TP1: {r.get('take_profit_1', '-')} | TP2: {r.get('take_profit_2', '-')}\n"
         )
+    lines.append("_Bukan nasihat keuangan — perhitungan otomatis dari rasio risk-reward._")
+    return "\n".join(lines)
+
+
+def format_akuisisi_message(hasil: list[dict]) -> str:
+    if not hasil:
+        return "🔍 *[SINYAL AKUISISI]*\nGak ada saham dengan sinyal berita akuisisi hari ini."
+
+    lines = ["🔍 *[SINYAL AKUISISI]* Semua Saham Energi\n"]
+    for r in hasil:
+        harga = r.get("harga_terakhir", "-")
+        lines.append(
+            f"*{r['kode_saham']}* — Rp{harga}\n"
+            f"🔥 {r.get('news_signal', '-')}\n"
+        )
+    lines.append("_Sinyal berbasis kata kunci berita, bukan konfirmasi resmi. Selalu verifikasi manual._")
     return "\n".join(lines)
