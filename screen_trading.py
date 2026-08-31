@@ -2,8 +2,11 @@
 # Screening 2: Momentum/trading berdasarkan RSI, MA, volume, golden cross.
 
 import yfinance as yf
-from config import SAHAM_ENERGI, TRADING_CRITERIA
-from indicators import calc_rsi, calc_ma, calc_volume_ratio, is_golden_cross
+from config import SAHAM_ENERGI, TRADING_CRITERIA, RISK_REWARD
+from indicators import (
+    calc_rsi, calc_ma, calc_volume_ratio, is_golden_cross,
+    calc_trade_levels, calc_fibonacci_levels, nearest_fib_level,
+)
 
 
 def run_trading_screening() -> list[dict]:
@@ -17,6 +20,8 @@ def run_trading_screening() -> list[dict]:
                 continue
 
             close = data["Close"]
+            high = data["High"]
+            low = data["Low"]
             volume = data["Volume"]
 
             rsi = calc_rsi(close)
@@ -24,6 +29,7 @@ def run_trading_screening() -> list[dict]:
             ma200 = calc_ma(close, 200)
             vol_ratio = calc_volume_ratio(volume)
             golden_cross = is_golden_cross(close)
+            fib_levels = calc_fibonacci_levels(high, low, lookback=90)
 
             if rsi is None:
                 continue
@@ -39,6 +45,14 @@ def run_trading_screening() -> list[dict]:
             # Lolos kalau: RSI di range momentum ATAU ada golden cross,
             # DITAMBAH volume lagi ramai
             if (lolos_rsi or golden_cross) and lolos_volume:
+                harga_terakhir = float(close.iloc[-1])
+                levels = calc_trade_levels(
+                    entry_price=harga_terakhir,
+                    stop_loss_pct=RISK_REWARD["stop_loss_pct"],
+                    tp1_rr=RISK_REWARD["tp1_rr"],
+                    tp2_rr=RISK_REWARD["tp2_rr"],
+                )
+
                 hasil.append({
                     "kode_saham": kode,
                     "rsi": rsi,
@@ -46,6 +60,13 @@ def run_trading_screening() -> list[dict]:
                     "ma200": ma200,
                     "volume_ratio": vol_ratio,
                     "golden_cross": golden_cross,
+                    "entry_price": levels["entry"],
+                    "stop_loss": levels["stop_loss"],
+                    "take_profit_1": levels["take_profit_1"],
+                    "take_profit_2": levels["take_profit_2"],
+                    "fib_support": fib_levels["fib_61.8"] if fib_levels else None,
+                    "fib_resistance": fib_levels["fib_38.2"] if fib_levels else None,
+                    "fib_nearest": nearest_fib_level(harga_terakhir, fib_levels) if fib_levels else None,
                 })
 
         except Exception as e:
