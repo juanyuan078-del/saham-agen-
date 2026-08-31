@@ -19,6 +19,9 @@ SAHAM_ENERGI = [
     "DEWA.JK",  # Darma Henwa
     "GEMS.JK",  # Golden Energy Mines
     "TOBA.JK",  # TBS Energi Utama
+    "TPIA.JK",  # Chandra Asri Petrochemical
+    "DSSA.JK",  # Dian Swastatika Sentosa
+    "PTRO.JK",  # Petrosea
 ]
 
 # ==== Kriteria Screening 1: Jangka Panjang (Value + Energi) ====
@@ -35,6 +38,15 @@ TRADING_CRITERIA = {
     "rsi_min": 30,
     "rsi_max": 50,
     "volume_ratio_min": 1.2,  # volume hari ini vs rata-rata 20 hari
+}
+
+# ==== Perhitungan Stop Loss & Take Profit (risk-reward based) ====
+# CATATAN: ini bukan nasihat keuangan, murni perhitungan matematis
+# dari rasio risiko:hasil yang kamu tentukan sendiri di bawah ini.
+RISK_REWARD = {
+    "stop_loss_pct": 0.05,  # SL 5% di bawah harga beli
+    "tp1_rr": 1.5,          # TP1 = risiko x 1.5
+    "tp2_rr": 3.0,          # TP2 = risiko x 3
 }
 
 # Kata kunci untuk deteksi "cerita" akuisisi/korporasi di judul berita
